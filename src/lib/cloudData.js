@@ -2,7 +2,15 @@ import { supabase } from "./supabase";
 
 export async function signUp(email, password, displayName) {
   if (!supabase) throw new Error("Add your Supabase URL and anon key to .env.local first.");
-  const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName } } });
+  const { data, error } = await supabase.auth.signUp({
+    email,
+    password,
+    options: {
+      data: { display_name: displayName },
+      // Return confirmation links to the site the user signed up from.
+      emailRedirectTo: window.location.origin,
+    },
+  });
   if (error) throw error;
   // A database trigger creates the profile from auth user metadata.
   // Do not write to profiles here: sign-up may not have an authenticated session yet,
