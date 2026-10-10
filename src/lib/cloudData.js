@@ -4,10 +4,9 @@ export async function signUp(email, password, displayName) {
   if (!supabase) throw new Error("Add your Supabase URL and anon key to .env.local first.");
   const { data, error } = await supabase.auth.signUp({ email, password, options: { data: { display_name: displayName } } });
   if (error) throw error;
-  if (data.user) {
-    const { error: profileError } = await supabase.from("profiles").upsert({ id: data.user.id, display_name: displayName || "Player" });
-    if (profileError) throw profileError;
-  }
+  // A database trigger creates the profile from auth user metadata.
+  // Do not write to profiles here: sign-up may not have an authenticated session yet,
+  // and Row Level Security correctly blocks unauthenticated client writes.
   return data;
 }
 export async function signIn(email, password) {
